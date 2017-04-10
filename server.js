@@ -71,14 +71,17 @@ app.post('/todos', function (req, res){
 // _.without
 app.delete('/todos/:id', function (req, res) {
     var todoIdDel = parseInt(req.params.id, 10);
-    var matchedIdDel = _.findWhere(todos, {id: todoIdDel});
-    
-    if (matchedIdDel){
-        todos = _.without(todos, matchedIdDel);
-        res.json(matchedIdDel);
-    } else {
-        return res.status(400).send();
-    }
+    var where = {};
+    where.id = todoIdDel;
+    db.todo.destroy({where: where}).then(function (todo){
+        if (todo){
+            return res.status(200).json('Task with id ' + todoIdDel +' deleted!' );
+        } else {
+            return res.status(404).send();
+        }
+    }, function (e){
+        res.status(500).send();
+    });
 });
 
 // PUT /todos/:id
